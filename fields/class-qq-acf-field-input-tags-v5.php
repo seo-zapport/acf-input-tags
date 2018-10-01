@@ -5,10 +5,10 @@ if( ! defined( 'ABSPATH' ) ) exit;
 
 
 // check if class already exists
-if( !class_exists('NAMESPACE_acf_field_FIELD_NAME') ) :
+if( !class_exists('qq_acf_field_input_tags') ) :
 
 
-class NAMESPACE_acf_field_FIELD_NAME extends acf_field {
+class qq_acf_field_input_tags extends acf_field {
 	
 	
 	/*
@@ -24,20 +24,20 @@ class NAMESPACE_acf_field_FIELD_NAME extends acf_field {
 	*  @return	n/a
 	*/
 	
-	function __construct( $settings ) {
+	function __construct() {
 		
 		/*
 		*  name (string) Single word, no spaces. Underscores allowed
 		*/
 		
-		$this->name = 'FIELD_NAME';
+		$this->name = 'input_tags';
 		
 		
 		/*
 		*  label (string) Multiple words, can include spaces, visible when selecting a field type
 		*/
 		
-		$this->label = __('FIELD_LABEL', 'TEXTDOMAIN');
+		$this->label = __('Input Tags');
 		
 		
 		/*
@@ -52,7 +52,7 @@ class NAMESPACE_acf_field_FIELD_NAME extends acf_field {
 		*/
 		
 		$this->defaults = array(
-			'font_size'	=> 14,
+			'initial_value'	=> '',
 		);
 		
 		
@@ -62,7 +62,7 @@ class NAMESPACE_acf_field_FIELD_NAME extends acf_field {
 		*/
 		
 		$this->l10n = array(
-			'error'	=> __('Error! Please enter a higher value', 'TEXTDOMAIN'),
+			'error'	=> __('Error! Please enter a higher value'),
 		);
 		
 		
@@ -70,48 +70,69 @@ class NAMESPACE_acf_field_FIELD_NAME extends acf_field {
 		*  settings (array) Store plugin settings (url, path, version) as a reference for later use with assets
 		*/
 		
-		$this->settings = $settings;
-		
+		//$this->settings = $settings;
+		$this->settings = array(
+			'version'	=> '1.2.0',
+			'url'		=> plugin_dir_url( __DIR__ )
+		);
 		
 		// do not delete!
     	parent::__construct();
     	
-	}
+	}	
 	
-	
+		
 	/*
-	*  render_field_settings()
+	*  input_admin_enqueue_scripts()
 	*
-	*  Create extra settings for your field. These are visible when editing a field
+	*  This action is called in the admin_enqueue_scripts action on the edit screen where your field is created.
+	*  Use this action to add CSS + JavaScript to assist your render_field() action.
 	*
-	*  @type	action
+	*  @type	action (admin_enqueue_scripts)
 	*  @since	3.6
 	*  @date	23/01/13
 	*
-	*  @param	$field (array) the $field being edited
+	*  @param	n/a
 	*  @return	n/a
 	*/
-	
-	function render_field_settings( $field ) {
-		
-		/*
-		*  acf_render_field_setting
-		*
-		*  This function will create a setting for your field. Simply pass the $field parameter and an array of field settings.
-		*  The array of settings does not require a `value` or `prefix`; These settings are found from the $field array.
-		*
-		*  More than one setting can be added by copy/paste the above code.
-		*  Please note that you must also have a matching $defaults value for the field name (font_size)
-		*/
-		
-		acf_render_field_setting( $field, array(
-			'label'			=> __('Font Size','TEXTDOMAIN'),
-			'instructions'	=> __('Customise the input font size','TEXTDOMAIN'),
-			'type'			=> 'number',
-			'name'			=> 'font_size',
-			'prepend'		=> 'px',
-		));
 
+	
+	
+	function input_admin_enqueue_scripts() {
+		
+		//globals
+		global $wp_scripts, $wp_styles;
+
+		// register if not already (on front end)
+		/*if ( ! isset($wp_scripts->registered['input-tags']) ) {
+
+			//style
+			wp_register_style( 'wp-input-tags', admin_url( 'css/input-tags' ), array('wp-input-tags') , '', true );
+		}	
+
+		// register & include JS
+		wp_register_script('jquery-tag-editor', "{$url}/assets/js/jquery.tag-editor.js", array('jquery.tag-editor'), $version);
+		wp_enqueue_script('jquery-tag-editor');*/
+
+		// vars
+		$url = $this->settings['url'];
+		$version = $this->settings['version'];
+
+		// include JS
+		wp_register_script('jquery-tag-editor', "{$url}assets/js/jquery-caret.min.js", array('jquery'), $version, true);
+		
+		wp_register_script('jquery-tag-editor', "{$url}assets/js/jquery-tag-editor.js", array('jquery'), $version, true);
+		
+		wp_register_script('acf-input-tags', "{$url}assets/js/input.js", array('jquery'), $version, false);
+		
+		// include CSS
+		wp_register_style('jquery-tag-editor-style', "{$url}assets/css/jquery-tag-editor.css", false, $version);
+		
+		// enqueue styles & scripts
+		wp_enqueue_script( 'jquery-caret' );
+		wp_enqueue_script( 'jquery-tag-editor' );
+		wp_enqueue_script( 'acf-input-tags' );
+		wp_enqueue_style('jquery-tag-editor-style');
 	}
 	
 	
@@ -140,7 +161,7 @@ class NAMESPACE_acf_field_FIELD_NAME extends acf_field {
 		*/
 		
 		echo '<pre>';
-			print_r( $field );
+			var_dump( $field );
 		echo '</pre>';
 		
 		
@@ -149,46 +170,46 @@ class NAMESPACE_acf_field_FIELD_NAME extends acf_field {
 		*/
 		
 		?>
-		<input type="text" name="<?php echo esc_attr($field['name']) ?>" value="<?php echo esc_attr($field['value']) ?>" style="font-size:<?php echo $field['font_size'] ?>px;" />
+		<div id="input-tags_<?php echo $field['ID']; ?>" data-field_type="wp-input-tags" >
+			<input type="text" name="<?php echo esc_attr($field['name']) ?>" value="<?php echo esc_attr($field['value']) ?>" style="font-size:<?php echo $field['input_tags'] ?>px;" />
+		</div>
 		<?php
 	}
 	
-		
+	
 	/*
-	*  input_admin_enqueue_scripts()
+	*  render_field_settings()
 	*
-	*  This action is called in the admin_enqueue_scripts action on the edit screen where your field is created.
-	*  Use this action to add CSS + JavaScript to assist your render_field() action.
+	*  Create extra settings for your field. These are visible when editing a field
 	*
-	*  @type	action (admin_enqueue_scripts)
+	*  @type	action
 	*  @since	3.6
 	*  @date	23/01/13
 	*
-	*  @param	n/a
+	*  @param	$field (array) the $field being edited
 	*  @return	n/a
 	*/
+	
+	function render_field_settings( $field ) {
+		
+		/*
+		*  acf_render_field_setting
+		*
+		*  This function will create a setting for your field. Simply pass the $field parameter and an array of field settings.
+		*  The array of settings does not require a `value` or `prefix`; These settings are found from the $field array.
+		*
+		*  More than one setting can be added by copy/paste the above code.
+		*  Please note that you must also have a matching $defaults value for the field name (font_size)
+		*/
+	
+		acf_render_field_setting( $field, array(
+			'label'			=> __('Default Value','acf'),
+			'instructions'	=> '',
+			'type'			=> 'text',
+			'name'			=> 'input_tags',
+		));
 
-	/*
-	
-	function input_admin_enqueue_scripts() {
-		
-		// vars
-		$url = $this->settings['url'];
-		$version = $this->settings['version'];
-		
-		
-		// register & include JS
-		wp_register_script('TEXTDOMAIN', "{$url}assets/js/input.js", array('acf-input'), $version);
-		wp_enqueue_script('TEXTDOMAIN');
-		
-		
-		// register & include CSS
-		wp_register_style('TEXTDOMAIN', "{$url}assets/css/input.css", array('acf-input'), $version);
-		wp_enqueue_style('TEXTDOMAIN');
-		
 	}
-	
-	*/
 	
 	
 	/*
@@ -557,7 +578,9 @@ class NAMESPACE_acf_field_FIELD_NAME extends acf_field {
 
 
 // initialize
-new NAMESPACE_acf_field_FIELD_NAME( $this->settings );
+//new qq_acf_field_input_tags( $this->settings );
+acf_register_field_type( new qq_acf_field_input_tags() );
+
 
 
 // class_exists check

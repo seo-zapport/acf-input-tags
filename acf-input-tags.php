@@ -16,9 +16,9 @@ if( ! defined( 'ABSPATH' ) ) exit;
 
 
 // check if class already exists
-if( !class_exists('NAMESPACE_acf_plugin_input_tags') ) :
-
-class NAMESPACE_acf_plugin_input_tags {
+if( !class_exists('qq_acf_plugin_input_tags') ) :
+ 
+class qq_acf_plugin_input_tags {
 	
 	// vars
 	var $settings;
@@ -78,14 +78,14 @@ class NAMESPACE_acf_plugin_input_tags {
 		
 		
 		// include
-		include_once('fields/class-NAMESPACE-acf-field-FIELD-NAME-v' . $version . '.php');
+		include_once('fields/class-qq-acf-field-input-tags-v' . $version . '.php');
 	}
 	
 }
 
 
 // initialize
-new NAMESPACE_acf_plugin_input_tags();
+new qq_acf_plugin_input_tags();
 
 
 // class_exists check

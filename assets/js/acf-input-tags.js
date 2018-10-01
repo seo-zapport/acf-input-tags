@@ -15,7 +15,7 @@
 	
 	function initialize_field( $field ) {
 		
-		console.log('hello');
+		//$field.doStuff();
 		
 	}
 	
@@ -52,12 +52,14 @@
 		$(document).on('acf/setup_fields', function(e, postbox){
 			
 			// find all relevant fields
-			/*$(postbox).find('.field[data-field_type="FIELD_NAME"]').each(function(){
+			$(postbox).find('.field[data-field_type="FIELD_NAME"]').each(function(){
 				
 				// initialize
 				initialize_field( $(this) );
-			});*/
-			initialize_field( $(this) );
+				
+			});
+			console.log('sample');
+		
 		});
 	
 	}
